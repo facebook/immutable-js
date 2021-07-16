@@ -31,6 +31,19 @@ describe('Record', () => {
     expect(t2.a).toBe(10);
   });
 
+  it('mutations only add defined values', () => {
+    const Rec = new Record({ a: 1 });
+    const rec = new Rec();
+
+    const r2 = rec.withMutations(m => {
+      m.a = 2;
+      m.invalid = '?';
+    });
+
+    expect(r2.a).toBe(2);
+    expect(r2.invalid).toBeUndefined();
+  });
+
   it('can be subclassed', () => {
     class Alphabet extends Record({ a: 1, b: 2, c: 3 }) {
       soup() {

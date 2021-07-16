@@ -15,7 +15,7 @@ import { merge, mergeWith } from './methods/merge';
 import { mergeDeep, mergeDeepWith } from './methods/mergeDeep';
 import { mergeIn } from './methods/mergeIn';
 import { mergeDeepIn } from './methods/mergeDeepIn';
-import { withMutations } from './methods/withMutations';
+import { withRecordMutations } from './methods/withMutations';
 import { asMutable } from './methods/asMutable';
 import { asImmutable } from './methods/asImmutable';
 
@@ -223,7 +223,7 @@ RecordPrototype.mergeDeepIn = mergeDeepIn;
 RecordPrototype.setIn = setIn;
 RecordPrototype.update = update;
 RecordPrototype.updateIn = updateIn;
-RecordPrototype.withMutations = withMutations;
+RecordPrototype.withMutations = withRecordMutations;
 RecordPrototype.asMutable = asMutable;
 RecordPrototype.asImmutable = asImmutable;
 RecordPrototype[ITERATOR_SYMBOL] = RecordPrototype.entries;
