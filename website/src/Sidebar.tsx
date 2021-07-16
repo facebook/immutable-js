@@ -1,7 +1,8 @@
 import Link from 'next/link';
-
+import { useEffect, useState } from 'react';
 import type { TypeDefinition, TypeDefs } from './TypeDefs';
 import { collectMemberGroups } from './collectMemberGroups';
+import { ArrowDown } from './ArrowDown';
 
 export type SidebarLinks = Array<{ label: string; url: string }>;
 
@@ -13,23 +14,58 @@ export function getSidebarLinks(defs: TypeDefs): SidebarLinks {
 function Links({
   links,
   focus,
+  showInGroups,
+  showInherited,
 }: {
   links: SidebarLinks;
   focus?: TypeDefinition;
+  showInGroups?: boolean;
+  showInherited?: boolean;
 }) {
+  const [isForcedClosed, setIsForcedClosed] = useState(false);
+  useEffect(() => {
+    setIsForcedClosed(false);
+  }, [focus?.label]);
+
   return (
     <div>
       <h2>Immutable.js</h2>
-      {links.map(link => (
-        <div
-          className={`SideBar__Link ${
-            focus?.label === link.label ? 'SideBar__Link--active' : ''
-          }`}
-          key={link.url}
-        >
-          <Link href={link.url}>{link.label}</Link>
-        </div>
-      ))}
+      {links.map(link => {
+        const isCurrent = focus?.label === link.label;
+        const isActive = isCurrent && !isForcedClosed;
+        return (
+          <>
+            <div
+              className={`sideBar__Link ${
+                isActive ? 'sideBar__Link--active' : ''
+              }`}
+              key={link.url}
+            >
+              <Link href={link.url}>
+                {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-is-valid */}
+                <a
+                  onClick={e => {
+                    if (isCurrent) {
+                      e.preventDefault();
+                      setIsForcedClosed(!isForcedClosed);
+                    }
+                  }}
+                >
+                  {link.label} <ArrowDown isActive={isActive} />
+                </a>
+              </Link>
+            </div>
+
+            {isActive && (
+              <Focus
+                focus={focus}
+                showInherited={showInherited}
+                showInGroups={showInGroups}
+              />
+            )}
+          </>
+        );
+      })}
     </div>
   );
 }
@@ -49,7 +85,6 @@ function Focus({
 
   return (
     <>
-      <h2>{focus.label}</h2>
       <div className="members">
         {focus.call && (
           <section>
@@ -113,36 +148,36 @@ export function SideBar({
 }) {
   return (
     <div className="sideBar">
-      {toggleShowInherited && toggleShowInGroups && (
-        <div className="toolBar">
-          <div onClick={toggleShowInGroups} onKeyPress={toggleShowInGroups}>
-            <span className={showInGroups ? 'selected' : undefined}>
-              Grouped
-            </span>
-            {' • '}
-            <span className={!showInGroups ? 'selected' : undefined}>
-              Alphabetized
-            </span>
-          </div>
-          <div onClick={toggleShowInherited} onKeyPress={toggleShowInherited}>
-            <span className={showInherited ? 'selected' : undefined}>
-              Inherited
-            </span>
-            {' • '}
-            <span className={!showInherited ? 'selected' : undefined}>
-              Defined
-            </span>
-          </div>
-        </div>
-      )}
+      <div className="sideBar__background" />
       <div className="scrollContent">
-        <Focus
+        {toggleShowInherited && toggleShowInGroups && (
+          <div className="toolBar">
+            <div onClick={toggleShowInGroups} onKeyPress={toggleShowInGroups}>
+              <span className={showInGroups ? 'selected' : undefined}>
+                Grouped
+              </span>
+              {' • '}
+              <span className={!showInGroups ? 'selected' : undefined}>
+                Alphabetized
+              </span>
+            </div>
+            <div onClick={toggleShowInherited} onKeyPress={toggleShowInherited}>
+              <span className={showInherited ? 'selected' : undefined}>
+                Inherited
+              </span>
+              {' • '}
+              <span className={!showInherited ? 'selected' : undefined}>
+                Defined
+              </span>
+            </div>
+          </div>
+        )}
+        <Links
+          links={links}
           focus={focus}
-          showInherited={showInherited}
           showInGroups={showInGroups}
+          showInherited={showInherited}
         />
-
-        <Links links={links} focus={focus} />
       </div>
     </div>
   );

@@ -6,8 +6,7 @@ body {
   --header-color: #212325;
   --header-bg-color: #6dbcdb;
   --body-color: #626466;
-  --code-block-bg-color: #fcfbfa;
-  --member-signature-bg-color: #f8f9fa;
+  --code-block-bg-color: #f4f4f4;
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
@@ -192,7 +191,7 @@ a.try-it {
 
 .contents {
   margin: 0 auto;
-  max-width: 880px;
+  max-width: 1024px;
   padding: 64px 0;
   position: relative;
 
@@ -209,7 +208,7 @@ a.try-it {
 
 .miniHeaderContents {
   margin: 0 auto;
-  max-width: 880px;
+  max-width: 1024px;
   padding: 12px 36px;
   position: relative;
   text-align: right;
@@ -421,12 +420,36 @@ a.try-it {
 }
 
 .sideBar {
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px - 20px);
+  margin-left: 40px;
   cursor: default;
   user-select: none;
-  font-size: 0.825em;
-  height: 100%;
-  margin-left: 20px;
   z-index: 0;
+}
+
+.sideBar__background {
+  position: fixed;
+  height: 100%;
+  background: var(--code-block-bg-color);
+  width: 100%;
+  z-index: -1;
+  margin-left: -20px;
+  top: 0;
+}
+
+.sideBar__Link {
+  padding: 5px 0;
+  border-top: 1px solid #d2d2d2;
+}
+
+.sideBar__Link--active {
+  font-weight: bold;
+}
+
+.sideBar__Arrow--active {
+  transform: rotate(180deg);
 }
 
 @media only screen and (max-width: 680px) {
@@ -438,8 +461,8 @@ a.try-it {
 .sideBar .scrollContent {
   box-sizing: border-box;
   height: 100%;
-  padding-bottom: 100px;
-  width: 220px;
+  width: 300px;
+  overflow: hidden auto;
 }
 
 .sideBar h2 {
@@ -454,7 +477,7 @@ a.try-it {
 }
 
 .sideBar .members {
-  margin: 0 0 2.5em;
+  margin: 0 0 2.5em 0.7em;
 }
 
 .sideBar .groupTitle {
@@ -508,7 +531,7 @@ a.try-it {
 
 .memberSignature {
   border-left-color: #9cdae9;
-  background: var(--member-signature-bg-color);
+  background: var(--code-block-bg-color);
 }
 
 .t.over {
