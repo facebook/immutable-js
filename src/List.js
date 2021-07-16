@@ -263,66 +263,61 @@ class VNode {
     this.ownerID = ownerID;
   }
 
-  // TODO: seems like these methods are very similar
-
-  removeBefore(ownerID, level, index) {
-    if (index === level ? 1 << level : 0 || this.array.length === 0) {
-      return this;
-    }
-    const originIndex = (index >>> level) & MASK;
-    if (originIndex >= this.array.length) {
-      return new VNode([], ownerID);
-    }
-    const removingFirst = originIndex === 0;
-    let newChild;
-    if (level > 0) {
-      const oldChild = this.array[originIndex];
-      newChild =
-        oldChild && oldChild.removeBefore(ownerID, level - SHIFT, index);
-      if (newChild === oldChild && removingFirst) {
-        return this;
-      }
-    }
-    if (removingFirst && !newChild) {
-      return this;
-    }
-    const editable = editableVNode(this, ownerID);
-    if (!removingFirst) {
-      for (let ii = 0; ii < originIndex; ii++) {
-        editable.array[ii] = undefined;
-      }
-    }
-    if (newChild) {
-      editable.array[originIndex] = newChild;
-    }
-    return editable;
-  }
-
-  removeAfter(ownerID, level, index) {
+  removeNodes(ownerID, level, index, isRemoveBefore = true) {
     if (index === (level ? 1 << level : 0) || this.array.length === 0) {
       return this;
     }
-    const sizeIndex = ((index - 1) >>> level) & MASK;
-    if (sizeIndex >= this.array.length) {
-      return this;
+    const levelIndex = (index >>> level) & MASK,
+      removeFirst = levelIndex === 0,
+      removeLast = levelIndex === this.array.length - 1;
+
+    if (levelIndex >= this.array.length) {
+      return isRemoveBefore ? new VNode([], ownerID) : this;
     }
 
     let newChild;
     if (level > 0) {
-      const oldChild = this.array[sizeIndex];
+      const oldChild = this.array[levelIndex];
       newChild =
-        oldChild && oldChild.removeAfter(ownerID, level - SHIFT, index);
-      if (newChild === oldChild && sizeIndex === this.array.length - 1) {
+        oldChild &&
+        oldChild.removeNodes(ownerID, level - SHIFT, index, isRemoveBefore);
+      if (
+        newChild === oldChild &&
+        ((isRemoveBefore && removeFirst) || (!isRemoveBefore && removeLast))
+      ) {
         return this;
       }
     }
 
-    const editable = editableVNode(this, ownerID);
-    editable.array.splice(sizeIndex + 1);
-    if (newChild) {
-      editable.array[sizeIndex] = newChild;
+    if (
+      ((isRemoveBefore && removeFirst) || (!isRemoveBefore && removeLast)) &&
+      !newChild
+    ) {
+      return this;
     }
+
+    const editable = editableNode(this, ownerID);
+    if (isRemoveBefore) {
+      for (let ii = 0; ii < levelIndex; ii++) {
+        editable.array[ii] = void 0;
+      }
+    } else {
+      editable.array.splice(levelIndex + 1);
+    }
+
+    if (newChild) {
+      editable.array[levelIndex] = newChild;
+    }
+
     return editable;
+  }
+
+  removeBefore(ownerID, level, index) {
+    return this.removeNodes(ownerID, level, index);
+  }
+
+  removeAfter(ownerID, level, index) {
+    return this.removeNodes(ownerID, level, index, false);
   }
 }
 
