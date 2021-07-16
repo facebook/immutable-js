@@ -196,6 +196,16 @@ describe('Set', () => {
     expect(s5.has('b')).toBe(false);
   });
 
+  it('is persistent to toggles', () => {
+    const s1 = Set();
+    const s2 = s1.add('a');
+    const s3 = s1.toggle('b');
+    const s4 = s2.toggle('a');
+    expect(s2.has('a')).toBe(true);
+    expect(s3.has('b')).toBe(true);
+    expect(s4.has('a')).toBe(false);
+  });
+
   it('deletes down to empty set', () => {
     const s = Set.of('A').remove('A');
     expect(s).toBe(Set());

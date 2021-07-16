@@ -68,6 +68,10 @@ export class Set extends SetCollection {
     return updateSet(this, this._map.remove(value));
   }
 
+  toggle(value) {
+    return this.has(value) ? this.remove(value) : this.add(value);
+  }
+
   clear() {
     return updateSet(this, this._map.clear());
   }

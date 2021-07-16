@@ -1674,6 +1674,13 @@ declare namespace Immutable {
     remove(value: T): this;
 
     /**
+     * Returns a new Set which also includes this value if it does not already exist, excludes this value if it exists.
+     *
+     * Note: `toggle` can be used in `withMutations`.
+     */
+    toggle(value: T): this;
+
+    /**
      * Returns a new Set containing no values.
      *
      * Note: `clear` can be used in `withMutations`.
