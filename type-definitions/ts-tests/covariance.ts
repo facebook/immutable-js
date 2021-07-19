@@ -34,7 +34,7 @@ let listOfC: List<C> = listOfB;
 declare var mapOfB: Map<string, B>;
 let mapOfA: Map<string, A> = mapOfB;
 
-// $ExpectType Map<string, B>
+// $ExpectType ObjectLikeMap<{ b: B; }>
 mapOfA = Map({ b: new B() });
 
 // $ExpectError

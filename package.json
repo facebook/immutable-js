@@ -60,7 +60,7 @@
     "test": "run-s format build lint testonly type-check",
     "check:git-clean": "./resources/check-changes",
     "type-check": "run-s type-check:*",
-    "type-check:ts": "tsc --project type-definitions/tsconfig.json && tsc --project __tests__/tsconfig.json && dtslint type-definitions/ts-tests",
+    "type-check:ts": "tsc --project type-definitions/tsconfig.json && tsc --project __tests__/tsconfig.json && dtslint type-definitions/ts-tests --localTs node_modules/typescript/lib",
     "type-check:flow": "flow check type-definitions/flow-tests --include-warnings",
     "perf": "node ./resources/bench.js",
     "website:build": "cd website && next build && next-sitemap && next export",

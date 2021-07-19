@@ -1,3 +1,5 @@
+// TypeScript Version: 4.1
+
 /**
  * Immutable data encourages pure functions (data-in, data-out) and lends itself
  * to much simpler application development and enabling techniques from
@@ -760,8 +762,64 @@ declare namespace Immutable {
    * not altered.
    */
   export function Map<K, V>(collection?: Iterable<[K, V]>): Map<K, V>;
+  export function Map<V>(collection: Iterable<List<V>>): Map<V, V>;
+  export function Map<R extends { [key in string | number]: unknown }>(
+    obj: R
+  ): ObjectLikeMap<R>;
   export function Map<V>(obj: { [key: string]: V }): Map<string, V>;
   export function Map<K extends string, V>(obj: { [P in K]?: V }): Map<K, V>;
+
+  export interface ObjectLikeMap<
+    R extends { [key in string | number]: unknown }
+  > extends Map<keyof R, R[keyof R]> {
+    /**
+     * Returns the value associated with the provided key, or notSetValue if
+     * the Collection does not contain this key.
+     *
+     * Note: it is possible a key may be associated with an `undefined` value,
+     * so if `notSetValue` is not provided and this method returns `undefined`,
+     * that does not guarantee the key was not found.
+     */
+    get<K extends keyof R>(key: K, notSetValue?: unknown): R[K];
+    get<NSV>(key: string, notSetValue: NSV): NSV;
+
+    // https://github.com/microsoft/TypeScript/pull/39094
+    getIn<P extends readonly (string | number)[]>(
+      searchKeyPath: [...P],
+      notSetValue?: unknown
+    ): RetrievePath<R, P>;
+
+    set<K extends string | number, V>(
+      key: K,
+      value: V
+    ): this & ObjectLikeMap<{ [key in K]: V }>;
+  }
+
+  // Loosely based off of this work.
+  // https://github.com/immutable-js/immutable-js/issues/1462#issuecomment-584123268
+
+  type GetMapType<S> = S extends ObjectLikeMap<infer T> ? T : S;
+
+  type Head<T extends readonly any[]> = T extends [infer H, ...unknown[]]
+    ? H
+    : never;
+  type Tail<T extends readonly any[]> = T extends [unknown, ...infer I]
+    ? I
+    : never[];
+
+  type RetrievePathReducer<
+    T,
+    C,
+    L extends readonly any[]
+  > = C extends keyof GetMapType<T>
+    ? L extends []
+      ? GetMapType<T>[C]
+      : RetrievePathReducer<GetMapType<T>[C], Head<L>, Tail<L>>
+    : never;
+
+  type RetrievePath<R, P extends readonly (string | number)[]> = P extends []
+    ? P
+    : RetrievePathReducer<R, Head<P>, Tail<P>>;
 
   export interface Map<K, V> extends Collection.Keyed<K, V> {
     /**

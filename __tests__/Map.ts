@@ -82,6 +82,7 @@ describe('Map', () => {
   it('accepts non-collection array-like objects as keyed collections', () => {
     const m = Map({ length: 3, 1: 'one' });
     expect(m.get('length')).toBe(3);
+    // @ts-expect-error -- type error, but the API is tolerante
     expect(m.get('1')).toBe('one');
     expect(m.toJS()).toEqual({ length: 3, 1: 'one' });
   });
