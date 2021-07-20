@@ -34,7 +34,7 @@ export default function RedirectExistingDocs({ versions }: Props) {
         <title>Documentation — Immutable.js</title>
       </Head>
       <DocHeader versions={versions} />
-      <div className="pageBody" id="body">
+      <div className="pageBody">
         <div className="contents">Redirecting...</div>
       </div>
     </div>

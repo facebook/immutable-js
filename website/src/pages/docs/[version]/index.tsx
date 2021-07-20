@@ -64,15 +64,13 @@ export default function OverviewDocPage({
       </Head>
       <ImmutableConsole version={version} />
       <DocHeader versions={versions} currentVersion={version} />
-      <div className="pageBody" id="body">
+      <div className="pageBody">
         <div className="contents">
-          <DocSearch />
-          <div>
-            <SideBar links={sidebarLinks} />
-            <div key={'Overview'} className="docContents">
-              <h1>Immutable.js ({version})</h1>
-              <DocOverview data={overviewData} />
-            </div>
+          <SideBar links={sidebarLinks} />
+          <div key="Overview" className="docContents">
+            <DocSearch />
+            <h1>Immutable.js ({version})</h1>
+            <DocOverview data={overviewData} />
           </div>
         </div>
       </div>

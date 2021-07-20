@@ -1,7 +1,6 @@
 import Head from 'next/head';
 
 import { DocHeader } from '../../../DocHeader';
-import { DocSearch } from '../../../DocSearch';
 import { ImmutableConsole } from '../../../ImmutableConsole';
 import { getSidebarLinks, SidebarLinks } from '../../../Sidebar';
 import { getTypeDefs } from '../../../static/getTypeDefs';
@@ -66,9 +65,8 @@ export default function TypeDocPage({
       </Head>
       <ImmutableConsole version={version} />
       <DocHeader versions={versions} currentVersion={version} />
-      <div className="pageBody" id="body">
+      <div className="pageBody">
         <div className="contents">
-          <DocSearch />
           <TypeDocumentation def={def} sidebarLinks={sidebarLinks} />
         </div>
       </div>

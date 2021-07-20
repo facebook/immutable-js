@@ -28,7 +28,7 @@ export default function Home({ versions, readme }: Props) {
       </Head>
       <ImmutableConsole version={versions[0]} />
       <Header versions={versions} />
-      <div className="pageBody" id="body">
+      <div className="pageBody">
         <div className="contents">
           <div dangerouslySetInnerHTML={{ __html: readme }} />
         </div>

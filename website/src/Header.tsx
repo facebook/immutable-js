@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { SVGSet } from './SVGSet';
 import { Logo } from './Logo';
 import { StarBtn } from './StarBtn';
+import { isMobile } from './isMobile';
 
 export function Header({
   versions,
@@ -193,17 +194,4 @@ function tz(s: number, p: number) {
 
 function t(y: number, z: number) {
   return { transform: 'translate3d(0, ' + y + 'px, 0) scale(' + z + ')' };
-}
-
-// TODO: replace with module
-let _isMobile: boolean;
-function isMobile() {
-  if (_isMobile === undefined) {
-    const isMobileMatch =
-      typeof window !== 'undefined' &&
-      window.matchMedia &&
-      window.matchMedia('(max-device-width: 680px)');
-    _isMobile = isMobileMatch && isMobileMatch.matches;
-  }
-  return _isMobile;
 }

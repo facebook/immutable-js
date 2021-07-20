@@ -6,6 +6,8 @@ body {
   --header-color: #212325;
   --header-bg-color: #6dbcdb;
   --body-color: #626466;
+  --code-block-bg-color: #fcfbfa;
+  --member-signature-bg-color: #f8f9fa;
 
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
@@ -89,7 +91,7 @@ blockquote > :last-child {
 
 .codeBlock {
   -webkit-overflow-scrolling: touch;
-  background: #fcfbfa;
+  background: var(--code-block-bg-color);
   border-left: solid 3px #eceae9;
   box-sizing: border-box;
   display: block;
@@ -97,7 +99,7 @@ blockquote > :last-child {
   margin: 0.5rem 0;
   overflow-y: scroll;
   padding: 0.5rem 8px 0.5rem 12px;
-  white-space: pre;
+  white-space: pre-wrap;
   position: relative;
 }
 
@@ -193,6 +195,9 @@ a.try-it {
   max-width: 880px;
   padding: 64px 0;
   position: relative;
+
+  display: flex;
+  flex-direction: row-reverse;
 }
 
 .miniHeader {
@@ -357,16 +362,17 @@ a.try-it {
 }
 
 /* Docs */
+.algolia-autocomplete {
+  width: 100%;
+  margin-bottom: 32px;
+}
 
 .docSearch {
-  margin-bottom: 32px;
   padding: 8px 16px;
   border-radius: 20px;
   border: solid 1px #eee;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.15);
-  width: 656px;
-  position: relative;
-  left: -16px;
+  width: 100%;
 }
 
 .docSearch:focus {
@@ -400,10 +406,6 @@ a.try-it {
 .toolBar {
   cursor: default;
   user-select: none;
-  position: absolute;
-  right: 0;
-  top: 66px;
-  width: 220px;
   color: #888;
   cursor: pointer;
 }
@@ -423,8 +425,7 @@ a.try-it {
   user-select: none;
   font-size: 0.825em;
   height: 100%;
-  float: right;
-  width: 220px;
+  margin-left: 20px;
   z-index: 0;
 }
 
@@ -438,7 +439,7 @@ a.try-it {
   box-sizing: border-box;
   height: 100%;
   padding-bottom: 100px;
-  width: 240px;
+  width: 220px;
 }
 
 .sideBar h2 {
@@ -460,16 +461,6 @@ a.try-it {
   color: var(--body-color);
   font-size: 1em;
   margin: 1em 0 0;
-}
-
-.docContents {
-  margin-right: 240px;
-}
-
-@media only screen and (max-width: 680px) {
-  .docContents {
-    margin-right: 0;
-  }
 }
 
 .t a {
@@ -517,7 +508,7 @@ a.try-it {
 
 .memberSignature {
   border-left-color: #9cdae9;
-  background: #f8f9fa;
+  background: var(--member-signature-bg-color);
 }
 
 .t.over {
