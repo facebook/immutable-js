@@ -1,5 +1,5 @@
-var typescript = require('typescript');
-const makeSynchronous = require('make-synchronous');
+const { createSyncFn } = require('synckit');
+const typescript = require('typescript');
 
 const TYPESCRIPT_OPTIONS = {
   noEmitOnError: true,
@@ -14,47 +14,6 @@ function transpileTypeScript(src, path) {
   return typescript.transpile(src, TYPESCRIPT_OPTIONS, path, []);
 }
 
-function transpileJavaScript(src, path) {
-  // Need to make this sync by calling `makeSynchronous`
-  // while https://github.com/facebook/jest/issues/9504 is not resolved
-  const fn = makeSynchronous(async path => {
-    const rollup = require('rollup');
-    const buble = require('rollup-plugin-buble');
-    const commonjs = require('rollup-plugin-commonjs');
-    const json = require('rollup-plugin-json');
-    const stripBanner = require('rollup-plugin-strip-banner');
-
-    // same input options as in rollup-config.js
-    const inputOptions = {
-      input: path,
-      onwarn: () => {},
-      plugins: [commonjs(), json(), stripBanner(), buble()],
-    };
-
-    const bundle = await rollup.rollup(inputOptions);
-
-    const { output } = await bundle.generate({
-      file: path,
-      format: 'cjs',
-      sourcemap: true,
-    });
-
-    await bundle.close();
-
-    const { code, map } = output[0];
-
-    if (!code) {
-      throw new Error(
-        'Unable to get code from rollup output in jestPreprocessor. Did rollup version changed ?'
-      );
-    }
-
-    return { code, map };
-  });
-
-  return fn(path);
-}
-
 module.exports = {
   process(src, path) {
     if (path.endsWith('__tests__/MultiRequire.js')) {
@@ -66,7 +25,9 @@ module.exports = {
       return transpileTypeScript(src, path);
     }
 
-    return transpileJavaScript(src, path);
+    // Need to make this sync by calling `synckit.createSyncFn`
+    // while https://github.com/facebook/jest/issues/9504 is not resolved for `cjs`
+    return createSyncFn(require.resolve('./transpile-javascript'))(src, path);
   },
 
   getCacheKey() {
