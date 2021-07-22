@@ -1,8 +1,16 @@
-import { fromJS, is, List, Map, OrderedSet, Seq, Set } from 'immutable';
+import {
+  fromJS,
+  is,
+  List,
+  Map,
+  OrderedSet,
+  Seq,
+  Set as ImmutableSet,
+} from 'immutable';
 
 describe('Set', () => {
   it('accepts array of values', () => {
-    const s = Set([1, 2, 3]);
+    const s = ImmutableSet([1, 2, 3]);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -10,15 +18,24 @@ describe('Set', () => {
   });
 
   it('accepts array-like of values', () => {
-    const s = Set<number | undefined>({ length: 3, 2: 3 });
+    const s = ImmutableSet<number | undefined>({ length: 3, 2: 3 });
     expect(s.size).toBe(2);
     expect(s.has(undefined)).toBe(true);
     expect(s.has(3)).toBe(true);
     expect(s.has(2)).toBe(false);
   });
 
+  it('accepts Set', () => {
+    const s = ImmutableSet(new Set([1, 2, 3]));
+    expect(ImmutableSet.isSet(s)).toBe(true);
+    expect(s.has(1)).toBe(true);
+    expect(s.has(2)).toBe(true);
+    expect(s.has(3)).toBe(true);
+    expect(s.has(4)).toBe(false);
+  });
+
   it('accepts string, an array-like collection', () => {
-    const s = Set('abc');
+    const s = ImmutableSet('abc');
     expect(s.size).toBe(3);
     expect(s.has('a')).toBe(true);
     expect(s.has('b')).toBe(true);
@@ -28,7 +45,7 @@ describe('Set', () => {
 
   it('accepts sequence of values', () => {
     const seq = Seq([1, 2, 3]);
-    const s = Set(seq);
+    const s = ImmutableSet(seq);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -37,14 +54,14 @@ describe('Set', () => {
 
   it('accepts a keyed Seq as a set of entries', () => {
     const seq = Seq({ a: null, b: null, c: null }).flip();
-    const s = Set(seq);
+    const s = ImmutableSet(seq);
     expect(s.toArray()).toEqual([
       [null, 'a'],
       [null, 'b'],
       [null, 'c'],
     ]);
     // Explicitly getting the values sequence
-    const s2 = Set(seq.valueSeq());
+    const s2 = ImmutableSet(seq.valueSeq());
     expect(s2.toArray()).toEqual(['a', 'b', 'c']);
     // toSet() does this for you.
     const v3 = seq.toSet();
@@ -52,7 +69,7 @@ describe('Set', () => {
   });
 
   it('accepts object keys', () => {
-    const s = Set.fromKeys({ a: null, b: null, c: null });
+    const s = ImmutableSet.fromKeys({ a: null, b: null, c: null });
     expect(s.has('a')).toBe(true);
     expect(s.has('b')).toBe(true);
     expect(s.has('c')).toBe(true);
@@ -61,7 +78,7 @@ describe('Set', () => {
 
   it('accepts sequence keys', () => {
     const seq = Seq({ a: null, b: null, c: null });
-    const s = Set.fromKeys(seq);
+    const s = ImmutableSet.fromKeys(seq);
     expect(s.has('a')).toBe(true);
     expect(s.has('b')).toBe(true);
     expect(s.has('c')).toBe(true);
@@ -69,7 +86,7 @@ describe('Set', () => {
   });
 
   it('accepts explicit values', () => {
-    const s = Set([1, 2, 3]);
+    const s = ImmutableSet([1, 2, 3]);
     expect(s.has(1)).toBe(true);
     expect(s.has(2)).toBe(true);
     expect(s.has(3)).toBe(true);
@@ -77,23 +94,23 @@ describe('Set', () => {
   });
 
   it('converts back to JS array', () => {
-    const s = Set([1, 2, 3]);
+    const s = ImmutableSet([1, 2, 3]);
     expect(s.toArray()).toEqual([1, 2, 3]);
   });
 
   it('converts back to JS object', () => {
-    const s = Set.of('a', 'b', 'c');
+    const s = ImmutableSet.of('a', 'b', 'c');
     expect(s.toObject()).toEqual({ a: 'a', b: 'b', c: 'c' });
   });
 
   it('maps no-ops return the same reference', () => {
-    const s = Set([1, 2, 3]);
+    const s = ImmutableSet([1, 2, 3]);
     const r = s.map(value => value);
     expect(r).toBe(s);
   });
 
   it('maps should produce new set if values changed', () => {
-    const s = Set([1, 2, 3]);
+    const s = ImmutableSet([1, 2, 3]);
     expect(s.has(4)).toBe(false);
     expect(s.size).toBe(3);
 
@@ -106,23 +123,28 @@ describe('Set', () => {
   });
 
   it('unions an unknown collection of Sets', () => {
-    const abc = Set(['a', 'b', 'c']);
-    const cat = Set(['c', 'a', 't']);
-    expect(Set.union([abc, cat]).toArray()).toEqual(['c', 'a', 't', 'b']);
-    expect(Set.union([abc])).toBe(abc);
-    expect(Set.union([])).toBe(Set());
+    const abc = ImmutableSet(['a', 'b', 'c']);
+    const cat = ImmutableSet(['c', 'a', 't']);
+    expect(ImmutableSet.union([abc, cat]).toArray()).toEqual([
+      'c',
+      'a',
+      't',
+      'b',
+    ]);
+    expect(ImmutableSet.union([abc])).toBe(abc);
+    expect(ImmutableSet.union([])).toBe(ImmutableSet());
   });
 
   it('intersects an unknown collection of Sets', () => {
-    const abc = Set(['a', 'b', 'c']);
-    const cat = Set(['c', 'a', 't']);
-    expect(Set.intersect([abc, cat]).toArray()).toEqual(['c', 'a']);
-    expect(Set.intersect([abc])).toBe(abc);
-    expect(Set.intersect([])).toBe(Set());
+    const abc = ImmutableSet(['a', 'b', 'c']);
+    const cat = ImmutableSet(['c', 'a', 't']);
+    expect(ImmutableSet.intersect([abc, cat]).toArray()).toEqual(['c', 'a']);
+    expect(ImmutableSet.intersect([abc])).toBe(abc);
+    expect(ImmutableSet.intersect([])).toBe(ImmutableSet());
   });
 
   it('iterates values', () => {
-    const s = Set([1, 2, 3]);
+    const s = ImmutableSet([1, 2, 3]);
     const iterator = jest.fn();
     s.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
@@ -133,43 +155,43 @@ describe('Set', () => {
   });
 
   it('unions two sets', () => {
-    const s1 = Set.of('a', 'b', 'c');
-    const s2 = Set.of('d', 'b', 'wow');
+    const s1 = ImmutableSet.of('a', 'b', 'c');
+    const s2 = ImmutableSet.of('d', 'b', 'wow');
     const s3 = s1.union(s2);
     expect(s3.toArray()).toEqual(['a', 'b', 'c', 'd', 'wow']);
   });
 
   it('returns self when union results in no-op', () => {
-    const s1 = Set.of('a', 'b', 'c');
-    const s2 = Set.of('c', 'a');
+    const s1 = ImmutableSet.of('a', 'b', 'c');
+    const s2 = ImmutableSet.of('c', 'a');
     const s3 = s1.union(s2);
     expect(s3).toBe(s1);
   });
 
   it('returns arg when union results in no-op', () => {
-    const s1 = Set();
-    const s2 = Set.of('a', 'b', 'c');
+    const s1 = ImmutableSet();
+    const s2 = ImmutableSet.of('a', 'b', 'c');
     const s3 = s1.union(s2);
     expect(s3).toBe(s2);
   });
 
   it('unions a set and another collection and returns a set', () => {
-    const s1 = Set([1, 2, 3]);
-    const emptySet = Set();
+    const s1 = ImmutableSet([1, 2, 3]);
+    const emptySet = ImmutableSet();
     const l = List([1, 2, 3]);
     const s2 = s1.union(l);
     const s3 = emptySet.union(l);
     const o = OrderedSet([1, 2, 3]);
     const s4 = s1.union(o);
     const s5 = emptySet.union(o);
-    expect(Set.isSet(s2)).toBe(true);
-    expect(Set.isSet(s3)).toBe(true);
-    expect(Set.isSet(s4) && !OrderedSet.isOrderedSet(s4)).toBe(true);
-    expect(Set.isSet(s5) && !OrderedSet.isOrderedSet(s5)).toBe(true);
+    expect(ImmutableSet.isSet(s2)).toBe(true);
+    expect(ImmutableSet.isSet(s3)).toBe(true);
+    expect(ImmutableSet.isSet(s4) && !OrderedSet.isOrderedSet(s4)).toBe(true);
+    expect(ImmutableSet.isSet(s5) && !OrderedSet.isOrderedSet(s5)).toBe(true);
   });
 
   it('is persistent to adds', () => {
-    const s1 = Set();
+    const s1 = ImmutableSet();
     const s2 = s1.add('a');
     const s3 = s2.add('b');
     const s4 = s3.add('c');
@@ -182,7 +204,7 @@ describe('Set', () => {
   });
 
   it('is persistent to deletes', () => {
-    const s1 = Set();
+    const s1 = ImmutableSet();
     const s2 = s1.add('a');
     const s3 = s2.add('b');
     const s4 = s3.add('c');
@@ -197,39 +219,39 @@ describe('Set', () => {
   });
 
   it('deletes down to empty set', () => {
-    const s = Set.of('A').remove('A');
-    expect(s).toBe(Set());
+    const s = ImmutableSet.of('A').remove('A');
+    expect(s).toBe(ImmutableSet());
   });
 
   it('unions multiple sets', () => {
-    const s = Set.of('A', 'B', 'C').union(
-      Set.of('C', 'D', 'E'),
-      Set.of('D', 'B', 'F')
+    const s = ImmutableSet.of('A', 'B', 'C').union(
+      ImmutableSet.of('C', 'D', 'E'),
+      ImmutableSet.of('D', 'B', 'F')
     );
-    expect(s).toEqual(Set.of('A', 'B', 'C', 'D', 'E', 'F'));
+    expect(s).toEqual(ImmutableSet.of('A', 'B', 'C', 'D', 'E', 'F'));
   });
 
   it('intersects multiple sets', () => {
-    const s = Set.of('A', 'B', 'C').intersect(
-      Set.of('B', 'C', 'D'),
-      Set.of('A', 'C', 'E')
+    const s = ImmutableSet.of('A', 'B', 'C').intersect(
+      ImmutableSet.of('B', 'C', 'D'),
+      ImmutableSet.of('A', 'C', 'E')
     );
-    expect(s).toEqual(Set.of('C'));
+    expect(s).toEqual(ImmutableSet.of('C'));
   });
 
   it('diffs multiple sets', () => {
-    const s = Set.of('A', 'B', 'C').subtract(
-      Set.of('C', 'D', 'E'),
-      Set.of('D', 'B', 'F')
+    const s = ImmutableSet.of('A', 'B', 'C').subtract(
+      ImmutableSet.of('C', 'D', 'E'),
+      ImmutableSet.of('D', 'B', 'F')
     );
-    expect(s).toEqual(Set.of('A'));
+    expect(s).toEqual(ImmutableSet.of('A'));
   });
 
   it('expresses value equality with set sequences', () => {
-    const s1 = Set.of('A', 'B', 'C');
+    const s1 = ImmutableSet.of('A', 'B', 'C');
     expect(s1.equals(null)).toBe(false);
 
-    const s2 = Set.of('C', 'B', 'A');
+    const s2 = ImmutableSet.of('C', 'B', 'A');
     expect(s1 === s2).toBe(false);
     expect(is(s1, s2)).toBe(true);
     expect(s1.equals(s2)).toBe(true);
@@ -240,7 +262,7 @@ describe('Set', () => {
   });
 
   it('can use union in a withMutation', () => {
-    const js = Set()
+    const js = ImmutableSet()
       .withMutations(set => {
         set.union(['a']);
         set.add('b');
@@ -250,7 +272,7 @@ describe('Set', () => {
   });
 
   it('can determine if an array is a subset', () => {
-    const s = Set.of('A', 'B', 'C');
+    const s = ImmutableSet.of('A', 'B', 'C');
     expect(s.isSuperset(['B', 'C'])).toBe(true);
     expect(s.isSuperset(['B', 'C', 'D'])).toBe(false);
   });
@@ -261,7 +283,7 @@ describe('Set', () => {
       const b = Symbol();
       const c = Symbol();
 
-      const symbolSet = Set([a, b, c, a, b, c, a, b, c, a, b, c]);
+      const symbolSet = ImmutableSet([a, b, c, a, b, c, a, b, c, a, b, c]);
       expect(symbolSet.size).toBe(3);
       expect(symbolSet.has(b)).toBe(true);
       expect(symbolSet.get(c)).toEqual(c);
@@ -283,7 +305,7 @@ describe('Set', () => {
         Symbol('c'),
       ];
 
-      const symbolSet = Set(manySymbols);
+      const symbolSet = ImmutableSet(manySymbols);
       expect(symbolSet.size).toBe(12);
       expect(symbolSet.has(manySymbols[10])).toBe(true);
       expect(symbolSet.get(manySymbols[10])).toEqual(manySymbols[10]);
@@ -291,7 +313,7 @@ describe('Set', () => {
   });
 
   it('can use intersect after add or union in a withMutation', () => {
-    const set = Set(['a', 'd']).withMutations(s => {
+    const set = ImmutableSet(['a', 'd']).withMutations(s => {
       s.add('b');
       s.union(['c']);
       s.intersect(['b', 'c', 'd']);
@@ -300,7 +322,7 @@ describe('Set', () => {
   });
 
   it('can count entries that satisfy a predicate', () => {
-    const set = Set([1, 2, 3, 4, 5]);
+    const set = ImmutableSet([1, 2, 3, 4, 5]);
     expect(set.size).toEqual(5);
     expect(set.count()).toEqual(5);
     expect(set.count(x => x % 2 === 0)).toEqual(2);
@@ -327,7 +349,7 @@ describe('Set', () => {
         }
       }
       it('with mutations', () => {
-        const testSet = Set().withMutations(mutableSet => {
+        const testSet = ImmutableSet().withMutations(mutableSet => {
           mutableSet.add(new Entity('hello', 'world'));
           mutableSet.add(new Entity('testing', 'immutable'));
           mutableSet.add(new Entity('hello', 'world'));
@@ -335,7 +357,7 @@ describe('Set', () => {
         expect(testSet.size).toEqual(2);
       });
       it('without mutations', () => {
-        const testSet0 = Set();
+        const testSet0 = ImmutableSet();
         const testSet1 = testSet0.add(new Entity('hello', 'world'));
         const testSet2 = testSet1.add(new Entity('testing', 'immutable'));
         const testSet3 = testSet2.add(new Entity('hello', 'world'));

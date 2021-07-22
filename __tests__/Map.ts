@@ -1,11 +1,25 @@
-import { is, List, Map, Range, Record, Seq } from 'immutable';
+import { is, List, Map as ImmutableMap, Range, Record, Seq } from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
 
 describe('Map', () => {
   it('converts from object', () => {
-    const m = Map({ a: 'A', b: 'B', c: 'C' });
+    const m = ImmutableMap({ a: 'A', b: 'B', c: 'C' });
+    expect(m.size).toBe(3);
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
+  });
+
+  it('converts from Map', () => {
+    const map = new Map();
+    map.set('a', 'A');
+    map.set('b', 'B');
+    map.set('c', 'C');
+
+    const m = ImmutableMap(map);
+    expect(ImmutableMap.isMap(m)).toBe(true);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -13,7 +27,7 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values', () => {
-    const m = Map({ a: 'A', b: 'B', c: 'C' });
+    const m = ImmutableMap({ a: 'A', b: 'B', c: 'C' });
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -21,7 +35,7 @@ describe('Map', () => {
   });
 
   it('constructor provides initial values as array of entries', () => {
-    const m = Map([
+    const m = ImmutableMap([
       ['a', 'A'],
       ['b', 'B'],
       ['c', 'C'],
@@ -34,7 +48,7 @@ describe('Map', () => {
 
   it('constructor provides initial values as sequence', () => {
     const s = Seq({ a: 'A', b: 'B', c: 'C' });
-    const m = Map(s);
+    const m = ImmutableMap(s);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -43,7 +57,7 @@ describe('Map', () => {
 
   it('constructor provides initial values as list of lists', () => {
     const l = List([List(['a', 'A']), List(['b', 'B']), List(['c', 'C'])]);
-    const m = Map(l);
+    const m = ImmutableMap(l);
     expect(m.size).toBe(3);
     expect(m.get('a')).toBe('A');
     expect(m.get('b')).toBe('B');
@@ -51,15 +65,15 @@ describe('Map', () => {
   });
 
   it('constructor is identity when provided map', () => {
-    const m1 = Map({ a: 'A', b: 'B', c: 'C' });
-    const m2 = Map(m1);
+    const m1 = ImmutableMap({ a: 'A', b: 'B', c: 'C' });
+    const m2 = ImmutableMap(m1);
     expect(m2).toBe(m1);
   });
 
   it('does not accept a scalar', () => {
     expect(() => {
       // TODO: should expect error
-      Map(3);
+      ImmutableMap(3);
     }).toThrow(
       'Expected Array or collection object of [k, v] entries, or keyed object: 3'
     );
@@ -68,26 +82,26 @@ describe('Map', () => {
   it('does not accept strings (collection, but scalar)', () => {
     expect(() => {
       // @ts-expect-error
-      Map('abc');
+      ImmutableMap('abc');
     }).toThrow();
   });
 
   it('does not accept non-entries array', () => {
     expect(() => {
       // @ts-expect-error
-      Map([1, 2, 3]);
+      ImmutableMap([1, 2, 3]);
     }).toThrow('Expected [K, V] tuple: 1');
   });
 
   it('accepts non-collection array-like objects as keyed collections', () => {
-    const m = Map({ length: 3, 1: 'one' });
+    const m = ImmutableMap({ length: 3, 1: 'one' });
     expect(m.get('length')).toBe(3);
     expect(m.get('1')).toBe('one');
     expect(m.toJS()).toEqual({ length: 3, 1: 'one' });
   });
 
   it('accepts flattened pairs via of()', () => {
-    const m: Map<any, any> = Map.of(1, 'a', 2, 'b', 3, 'c');
+    const m: ImmutableMap<any, any> = ImmutableMap.of(1, 'a', 2, 'b', 3, 'c');
     expect(m.size).toBe(3);
     expect(m.get(1)).toBe('a');
     expect(m.get(2)).toBe('b');
@@ -96,17 +110,17 @@ describe('Map', () => {
 
   it('does not accept mismatched flattened pairs via of()', () => {
     expect(() => {
-      Map.of(1, 2, 3);
+      ImmutableMap.of(1, 2, 3);
     }).toThrow('Missing value for key: 3');
   });
 
   it('converts back to JS object', () => {
-    const m = Map({ a: 'A', b: 'B', c: 'C' });
+    const m = ImmutableMap({ a: 'A', b: 'B', c: 'C' });
     expect(m.toObject()).toEqual({ a: 'A', b: 'B', c: 'C' });
   });
 
   it('iterates values', () => {
-    const m = Map({ a: 'A', b: 'B', c: 'C' });
+    const m = ImmutableMap({ a: 'A', b: 'B', c: 'C' });
     const iterator = jest.fn();
     m.forEach(iterator);
     expect(iterator.mock.calls).toEqual([
@@ -117,8 +131,8 @@ describe('Map', () => {
   });
 
   it('merges two maps', () => {
-    const m1 = Map({ a: 'A', b: 'B', c: 'C' });
-    const m2 = Map({ wow: 'OO', d: 'DD', b: 'BB' });
+    const m1 = ImmutableMap({ a: 'A', b: 'B', c: 'C' });
+    const m2 = ImmutableMap({ wow: 'OO', d: 'DD', b: 'BB' });
     expect(m2.toObject()).toEqual({ wow: 'OO', d: 'DD', b: 'BB' });
     const m3 = m1.merge(m2);
     expect(m3.toObject()).toEqual({
@@ -131,8 +145,8 @@ describe('Map', () => {
   });
 
   it('concatenates two maps (alias for merge)', () => {
-    const m1 = Map({ a: 'A', b: 'B', c: 'C' });
-    const m2 = Map({ wow: 'OO', d: 'DD', b: 'BB' });
+    const m1 = ImmutableMap({ a: 'A', b: 'B', c: 'C' });
+    const m2 = ImmutableMap({ wow: 'OO', d: 'DD', b: 'BB' });
     expect(m2.toObject()).toEqual({ wow: 'OO', d: 'DD', b: 'BB' });
     const m3 = m1.concat(m2);
     expect(m3.toObject()).toEqual({
@@ -145,7 +159,7 @@ describe('Map', () => {
   });
 
   it('accepts null as a key', () => {
-    const m1 = Map<any, any>();
+    const m1 = ImmutableMap<any, any>();
     const m2 = m1.set(null, 'null');
     const m3 = m2.remove(null);
     expect(m1.size).toBe(0);
@@ -155,7 +169,7 @@ describe('Map', () => {
   });
 
   it('is persistent to sets', () => {
-    const m1 = Map();
+    const m1 = ImmutableMap();
     const m2 = m1.set('a', 'Aardvark');
     const m3 = m2.set('b', 'Baboon');
     const m4 = m3.set('c', 'Canary');
@@ -170,7 +184,7 @@ describe('Map', () => {
   });
 
   it('is persistent to deletes', () => {
-    const m1 = Map();
+    const m1 = ImmutableMap();
     const m2 = m1.set('a', 'Aardvark');
     const m3 = m2.set('b', 'Baboon');
     const m4 = m3.set('c', 'Canary');
@@ -194,11 +208,11 @@ describe('Map', () => {
       m = m.remove(ii);
       expect(m.size).toBe(ii);
     }
-    expect(m).toBe(Map());
+    expect(m).toBe(ImmutableMap());
   });
 
   it('can map many items', () => {
-    let m = Map();
+    let m = ImmutableMap();
     for (let ii = 0; ii < 2000; ii++) {
       m = m.set('thing:' + ii, ii);
     }
@@ -208,7 +222,7 @@ describe('Map', () => {
 
   it('can use weird keys', () => {
     const symbol = Symbol('A');
-    const m: Map<any, any> = Map()
+    const m: ImmutableMap<any, any> = ImmutableMap()
       .set(NaN, 1)
       .set(Infinity, 2)
       .set(symbol, 'A')
@@ -222,7 +236,7 @@ describe('Map', () => {
 
   it('can map items known to hash collide', () => {
     // make a big map, so it hashmaps
-    let m: Map<any, any> = Range(0, 32).toMap();
+    let m: ImmutableMap<any, any> = Range(0, 32).toMap();
     m = m.set('AAA', 'letters').set(64545, 'numbers');
     expect(m.size).toBe(34);
     expect(m.get('AAA')).toEqual('letters');
@@ -231,7 +245,7 @@ describe('Map', () => {
 
   it('can progressively add items known to collide', () => {
     // make a big map, so it hashmaps
-    let map: Map<any, any> = Range(0, 32).toMap();
+    let map: ImmutableMap<any, any> = Range(0, 32).toMap();
     map = map.set('@', '@');
     map = map.set(64, 64);
     map = map.set(96, 96);
@@ -242,25 +256,25 @@ describe('Map', () => {
   });
 
   it('maps values', () => {
-    const m = Map({ a: 'a', b: 'b', c: 'c' });
+    const m = ImmutableMap({ a: 'a', b: 'b', c: 'c' });
     const r = m.map(value => value.toUpperCase());
     expect(r.toObject()).toEqual({ a: 'A', b: 'B', c: 'C' });
   });
 
   it('maps keys', () => {
-    const m = Map({ a: 'a', b: 'b', c: 'c' });
+    const m = ImmutableMap({ a: 'a', b: 'b', c: 'c' });
     const r = m.mapKeys(key => key.toUpperCase());
     expect(r.toObject()).toEqual({ A: 'a', B: 'b', C: 'c' });
   });
 
   it('maps no-ops return the same reference', () => {
-    const m = Map({ a: 'a', b: 'b', c: 'c' });
+    const m = ImmutableMap({ a: 'a', b: 'b', c: 'c' });
     const r = m.map(value => value);
     expect(r).toBe(m);
   });
 
   it('provides unmodified original collection as 3rd iter argument', () => {
-    const m = Map({ a: 1, b: 1 });
+    const m = ImmutableMap({ a: 1, b: 1 });
     const r = m.map((value, key, iter) => {
       expect(iter).toEqual(m);
       return 2 * (iter.get(key) as number);
@@ -269,24 +283,24 @@ describe('Map', () => {
   });
 
   it('filters values', () => {
-    const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
+    const m = ImmutableMap({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     const r = m.filter(value => value % 2 === 1);
     expect(r.toObject()).toEqual({ a: 1, c: 3, e: 5 });
   });
 
   it('filterNots values', () => {
-    const m = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
+    const m = ImmutableMap({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     const r = m.filterNot(value => value % 2 === 1);
     expect(r.toObject()).toEqual({ b: 2, d: 4, f: 6 });
   });
 
   it('derives keys', () => {
-    const v = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
+    const v = ImmutableMap({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     expect(v.keySeq().toArray()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
   it('flips keys and values', () => {
-    const v = Map({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
+    const v = ImmutableMap({ a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 });
     expect(v.flip().toObject()).toEqual({
       1: 'a',
       2: 'b',
@@ -298,7 +312,7 @@ describe('Map', () => {
   });
 
   it('can convert to a list', () => {
-    const m = Map({ a: 1, b: 2, c: 3 });
+    const m = ImmutableMap({ a: 1, b: 2, c: 3 });
     const v = m.toList();
     const k = m.keySeq().toList();
     expect(v.size).toBe(3);
@@ -314,7 +328,7 @@ describe('Map', () => {
     { maxSize: 50 },
     [gen.object(gen.JSONPrimitive)],
     obj => {
-      let map = Map(obj);
+      let map = ImmutableMap(obj);
       Object.keys(obj).forEach(key => {
         expect(map.get(key)).toBe(obj[key]);
         expect(map.has(key)).toBe(true);
@@ -330,7 +344,7 @@ describe('Map', () => {
   );
 
   check.it('sets', { maxSize: 5000 }, [gen.posInt], len => {
-    let map = Map();
+    let map = ImmutableMap();
     for (let ii = 0; ii < len; ii++) {
       expect(map.size).toBe(ii);
       map = map.set('' + ii, ii);
@@ -381,7 +395,7 @@ describe('Map', () => {
   });
 
   it('allows chained mutations', () => {
-    const m1 = Map();
+    const m1 = ImmutableMap();
     const m2 = m1.set('a', 1);
     const m3 = m2.withMutations(m => m.set('b', 2).set('c', 3));
     const m4 = m3.set('d', 4);
@@ -393,20 +407,20 @@ describe('Map', () => {
   });
 
   it('chained mutations does not result in new empty map instance', () => {
-    const v1 = Map({ x: 1 });
+    const v1 = ImmutableMap({ x: 1 });
     const v2 = v1.withMutations(v => v.set('y', 2).delete('x').delete('y'));
-    expect(v2).toBe(Map());
+    expect(v2).toBe(ImmutableMap());
   });
 
   it('expresses value equality with unordered sequences', () => {
-    const m1 = Map({ A: 1, B: 2, C: 3 });
-    const m2 = Map({ C: 3, B: 2, A: 1 });
+    const m1 = ImmutableMap({ A: 1, B: 2, C: 3 });
+    const m2 = ImmutableMap({ C: 3, B: 2, A: 1 });
     expect(is(m1, m2)).toBe(true);
   });
 
   it('deletes all the provided keys', () => {
     const NOT_SET = undefined;
-    const m1 = Map({ A: 1, B: 2, C: 3 });
+    const m1 = ImmutableMap({ A: 1, B: 2, C: 3 });
     const m2 = m1.deleteAll(['A', 'B']);
     expect(m2.get('A')).toBe(NOT_SET);
     expect(m2.get('B')).toBe(NOT_SET);
@@ -415,7 +429,7 @@ describe('Map', () => {
   });
 
   it('remains unchanged when no keys are provided', () => {
-    const m1 = Map({ A: 1, B: 2, C: 3 });
+    const m1 = ImmutableMap({ A: 1, B: 2, C: 3 });
     const m2 = m1.deleteAll([]);
     expect(m1).toBe(m2);
   });
@@ -428,7 +442,7 @@ describe('Map', () => {
     }
 
     const r = new A({ x: 2 });
-    const map = Map([[r, r]]);
+    const map = ImmutableMap([[r, r]]);
     expect(map.toString()).toEqual('Map { 2: 2 }');
   });
 
@@ -436,7 +450,7 @@ describe('Map', () => {
     const a = Symbol('a');
     const b = Symbol('b');
     const c = Symbol('c');
-    const m = Map([
+    const m = ImmutableMap([
       [a, 'a'],
       [b, 'b'],
       [c, 'c'],
@@ -450,7 +464,7 @@ describe('Map', () => {
   it('Symbol keys are unique', () => {
     const a = Symbol('FooBar');
     const b = Symbol('FooBar');
-    const m = Map([
+    const m = ImmutableMap([
       [a, 'FizBuz'],
       [b, 'FooBar'],
     ]);
@@ -470,13 +484,13 @@ describe('Map', () => {
 
     // Note the use of nested Map constructors, Map() does not do a
     // deep conversion!
-    const m1 = Map([
+    const m1 = ImmutableMap([
       [
         a,
-        Map([
+        ImmutableMap([
           [
             b,
-            Map([
+            ImmutableMap([
               [c, 1],
               [d, 2],
             ]),
@@ -484,13 +498,13 @@ describe('Map', () => {
         ]),
       ],
     ]);
-    const m2 = Map([
+    const m2 = ImmutableMap([
       [
         a,
-        Map([
+        ImmutableMap([
           [
             b,
-            Map([
+            ImmutableMap([
               [c, 10],
               [e, 20],
               [f, 30],
@@ -503,13 +517,13 @@ describe('Map', () => {
     const merged = m1.mergeDeep(m2);
 
     expect(merged).toEqual(
-      Map([
+      ImmutableMap([
         [
           a,
-          Map([
+          ImmutableMap([
             [
               b,
-              Map([
+              ImmutableMap([
                 [c, 10],
                 [d, 2],
                 [e, 20],

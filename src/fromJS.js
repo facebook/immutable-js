@@ -1,4 +1,5 @@
 import { KeyedSeq, IndexedSeq } from './Seq';
+import { Set as ImmutableSet } from './Set';
 import { isKeyed } from './predicates/isKeyed';
 import isPlainObj from './utils/isPlainObj';
 
@@ -13,12 +14,25 @@ export function fromJS(value, converter) {
   );
 }
 
+function getToSeq(value) {
+  if (Array.isArray(value)) {
+    return IndexedSeq;
+  }
+
+  if (value instanceof Set) {
+    return ImmutableSet;
+  }
+
+  if (value instanceof Map || isPlainObj(value)) {
+    return KeyedSeq;
+  }
+
+  return null;
+}
+
 function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
-  const toSeq = Array.isArray(value)
-    ? IndexedSeq
-    : isPlainObj(value)
-    ? KeyedSeq
-    : null;
+  const toSeq = getToSeq(value);
+
   if (toSeq) {
     if (~stack.indexOf(value)) {
       throw new TypeError('Cannot convert circular structure to Immutable');
@@ -41,5 +55,9 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
 }
 
 function defaultConverter(k, v) {
+  if (ImmutableSet.isSet(v)) {
+    return v;
+  }
+
   return isKeyed(v) ? v.toMap() : v.toList();
 }
