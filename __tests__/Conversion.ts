@@ -1,4 +1,11 @@
-import { fromJS, is, List, Map, OrderedMap, Record } from 'immutable';
+import {
+  fromJS,
+  is,
+  List,
+  Map,
+  OrderedMap,
+  Record as ImmutableRecord,
+} from 'immutable';
 
 import * as jasmineCheck from 'jasmine-check';
 jasmineCheck.install();
@@ -30,7 +37,7 @@ describe('Conversion', () => {
     list: [1, 2, 3],
   };
 
-  const Point = Record({ x: 0, y: 0 }, 'Point');
+  const Point = ImmutableRecord({ x: 0, y: 0 }, 'Point');
 
   const immutableData = Map({
     deepList: List.of(
@@ -114,6 +121,27 @@ describe('Conversion', () => {
     );
   });
 
+  it('Throws when calling toJS with a circular reference', () => {
+    const obj: Record<string, any> = {
+      foo: 1,
+      bar: null,
+    };
+    // Create circular reference
+    obj.bar = obj;
+
+    const simplerTest = List().push(obj);
+
+    expect(() => simplerTest.toJS()).toThrow(
+      'Cannot convert circular structure to JS'
+    );
+  });
+
+  it('does not throw when using empty objects', () => {
+    expect(() => fromJS([{}, {}]).toJS()).not.toThrow();
+    expect(() => fromJS([['', '']]).toJS()).not.toThrow();
+    expect(() => fromJS([[null, null]]).toJS()).not.toThrow();
+  });
+
   it('Converts deep JSON with custom conversion', () => {
     const seq = fromJS(js, function (key, sequence) {
       if (key === 'point') {
@@ -173,7 +201,7 @@ describe('Conversion', () => {
   });
 
   it('JSON.stringify() respects toJSON methods on values', () => {
-    const Model = Record({});
+    const Model = ImmutableRecord({});
     Model.prototype.toJSON = function () {
       return 'model';
     };
