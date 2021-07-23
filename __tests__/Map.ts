@@ -12,6 +12,21 @@ describe('Map', () => {
     expect(m.get('c')).toBe('C');
   });
 
+  it('converts from JS (global) Map', () => {
+    const m = Map(
+      new global.Map([
+        ['a', 'A'],
+        ['b', 'B'],
+        ['c', 'C'],
+      ])
+    );
+    expect(Map.isMap(m)).toBe(true);
+    expect(m.size).toBe(3);
+    expect(m.get('a')).toBe('A');
+    expect(m.get('b')).toBe('B');
+    expect(m.get('c')).toBe('C');
+  });
+
   it('constructor provides initial values', () => {
     const m = Map({ a: 'A', b: 'B', c: 'C' });
     expect(m.size).toBe(3);

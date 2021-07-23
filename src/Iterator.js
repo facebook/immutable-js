@@ -70,3 +70,13 @@ function getIteratorFn(iterable) {
     return iteratorFn;
   }
 }
+
+export function isEntriesIterable(maybeIterable) {
+  const iteratorFn = getIteratorFn(maybeIterable);
+  return iteratorFn && iteratorFn === maybeIterable.entries;
+}
+
+export function isKeysIterable(maybeIterable) {
+  const iteratorFn = getIteratorFn(maybeIterable);
+  return iteratorFn && iteratorFn === maybeIterable.keys;
+}

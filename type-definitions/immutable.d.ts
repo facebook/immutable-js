@@ -4871,6 +4871,10 @@ declare namespace Immutable {
   /**
    * Deeply converts plain JS objects and arrays to Immutable Maps and Lists.
    *
+   * `fromJS` will convert Arrays and [array-like objects][2] to a List, and
+   * plain objects (without a custom prototype) to a Map. [Iterable objects][3]
+   * may be converted to List, Map, or Set.
+   *
    * If a `reviver` is optionally provided, it will be called with every
    * collection as a Seq (beginning with the most nested collections
    * and proceeding to the top-level collection itself), along with the key
@@ -4892,10 +4896,6 @@ declare namespace Immutable {
    *   return isKeyed(value) ? value.toMap() : value.toList()
    * }
    * ```
-   *
-   * `fromJS` is conservative in its conversion. It will only convert
-   * arrays which pass `Array.isArray` to Lists, and only raw objects (no custom
-   * prototype) to Map.
    *
    * Accordingly, this example converts native JS data to OrderedMap and List:
    *
@@ -4933,6 +4933,10 @@ declare namespace Immutable {
    *
    * [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter
    *      "Using the reviver parameter"
+   * [2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects
+   *      "Working with array-like objects"
+   * [3]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol
+   *      "The iterable protocol"
    */
   function fromJS(
     jsValue: unknown,

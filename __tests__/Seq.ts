@@ -1,4 +1,4 @@
-import { isCollection, isIndexed, Seq } from 'immutable';
+import { isCollection, isIndexed, isKeyed, Seq } from 'immutable';
 
 describe('Seq', () => {
   it('returns undefined if empty and first is called without default argument', () => {
@@ -71,6 +71,25 @@ describe('Seq', () => {
     const empty = Seq({ length: 0 });
     expect(isIndexed(empty)).toBe(true);
     expect(empty.size).toEqual(0);
+  });
+
+  it('accepts a JS (global) Map', () => {
+    const seq = Seq(
+      new global.Map([
+        ['a', 'A'],
+        ['b', 'B'],
+        ['c', 'C'],
+      ])
+    );
+    expect(isKeyed(seq)).toBe(true);
+    expect(seq.size).toBe(3);
+  });
+
+  it('accepts a JS (global) Set', () => {
+    const seq = Seq(new global.Set(['a', 'b', 'c']));
+    expect(isIndexed(seq)).toBe(false);
+    expect(isKeyed(seq)).toBe(false);
+    expect(seq.size).toBe(3);
   });
 
   it('does not accept a scalar', () => {

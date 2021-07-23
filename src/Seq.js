@@ -14,6 +14,8 @@ import {
   hasIterator,
   isIterator,
   getIterator,
+  isEntriesIterable,
+  isKeysIterable,
 } from './Iterator';
 
 import hasOwnProperty from './utils/hasOwnProperty';
@@ -286,11 +288,7 @@ function emptySequence() {
 }
 
 export function keyedSeqFromValue(value) {
-  const seq = Array.isArray(value)
-    ? new ArraySeq(value)
-    : hasIterator(value)
-    ? new CollectionSeq(value)
-    : undefined;
+  const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
     return seq.fromEntrySeq();
   }
@@ -316,7 +314,11 @@ export function indexedSeqFromValue(value) {
 function seqFromValue(value) {
   const seq = maybeIndexedSeqFromValue(value);
   if (seq) {
-    return seq;
+    return isEntriesIterable(value)
+      ? seq.fromEntrySeq()
+      : isKeysIterable(value)
+      ? seq.toSetSeq()
+      : seq;
   }
   if (typeof value === 'object') {
     return new ObjectSeq(value);

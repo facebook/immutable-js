@@ -1,5 +1,9 @@
-import { KeyedSeq, IndexedSeq } from './Seq';
+import { Seq } from './Seq';
+import { hasIterator } from './Iterator';
+import { isImmutable } from './predicates/isImmutable';
+import { isIndexed } from './predicates/isIndexed';
 import { isKeyed } from './predicates/isKeyed';
+import isArrayLike from './utils/isArrayLike';
 import isPlainObj from './utils/isPlainObj';
 
 export function fromJS(value, converter) {
@@ -14,12 +18,11 @@ export function fromJS(value, converter) {
 }
 
 function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
-  const toSeq = Array.isArray(value)
-    ? IndexedSeq
-    : isPlainObj(value)
-    ? KeyedSeq
-    : null;
-  if (toSeq) {
+  if (
+    typeof value !== 'string' &&
+    !isImmutable(value) &&
+    (isArrayLike(value) || hasIterator(value) || isPlainObj(value))
+  ) {
     if (~stack.indexOf(value)) {
       throw new TypeError('Cannot convert circular structure to Immutable');
     }
@@ -28,7 +31,7 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
     const converted = converter.call(
       parentValue,
       key,
-      toSeq(value).map((v, k) =>
+      Seq(value).map((v, k) =>
         fromJSWith(stack, converter, v, k, keyPath, value)
       ),
       keyPath && keyPath.slice()
@@ -41,5 +44,6 @@ function fromJSWith(stack, converter, value, key, keyPath, parentValue) {
 }
 
 function defaultConverter(k, v) {
-  return isKeyed(v) ? v.toMap() : v.toList();
+  // Effectively the opposite of "Collection.toSeq()"
+  return isIndexed(v) ? v.toList() : isKeyed(v) ? v.toMap() : v.toSet();
 }
